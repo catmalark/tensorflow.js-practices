@@ -1,0 +1,60 @@
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"> </script>
+    
+<body>
+    <img id="img" src="/image/dog1.jpg" style="height:700px"></img>
+    <div id="output" style="font-family:courier;font-size:24px;height:300px"></div>   
+    
+    
+</body>    
+
+<script>
+    async function run(){
+        const MODEL_URL = 'http://127.0.0.1:8887/model/model.json';
+        const model = await tf.loadLayersModel(MODEL_URL);
+        console.log(model.summary());
+        
+        const img = document.getElementById('img');
+        const outp = document.getElementById('output');
+        
+        //Preproccesing Image:
+        let imageTensor = tf.browser.fromPixels(img, 3);
+        //Normalize and Resize:
+        let normalized = tf.image.resizeBilinear(imageTensor.expandDims(0), [150, 150]).toFloat().div(tf.scalar(255));
+        
+        const classNames = ["cat", "dog"];
+        //Getting Predictions:
+        const predictions = model.predict(normalized);
+        console.log(predictions);
+        
+        //Turning Prediction to Array:
+        const pred = await predictions.array();
+        console.log(pred);
+        
+        //Choosing index
+        var predClass;
+        if(pred[0] > 0.5){  
+            var predClass = 1;
+        } else {
+            var predClass = 0;
+        }
+        
+        outp.innerHTML = "<br/>" + "It is a " + classNames[predClass] + " with " + pred[0] + " probability.";
+           
+	}
+	run();
+    
+
+</script>
+    
+<script>
+    
+    
+</script>
+</head> 
+<script>
+    
+   
+</script>
+</html>
